@@ -3,24 +3,25 @@ name: Build KHZ_Q Wasm
 on:
   push:
     branches: [main]
-    paths:
-      - 'Core_CPP/khz_q_svd.c'
-      - 'Core_CPP/khz_q_svd.h'
-      - '.github/workflows/build_wasm.yml'
-  workflow_dispatch:  # allow manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Clang + LLVM wasm32 target
+      - name: Install Clang wasm32
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y clang lld
+          clang --version
 
       - name: Build khzq_prism.wasm
         run: |
@@ -33,12 +34,11 @@ jobs:
             -Wl,--export=khzq_output_coherent \
             -Wl,--export=khz_q_verify_output_wasm \
             Core_CPP/khz_q_svd.c -o khzq_prism.wasm
-          echo "Built: $(wc -c < khzq_prism.wasm) bytes"
+          echo "Size: $(wc -c < khzq_prism.wasm) bytes"
 
-      - name: Commit khzq_prism.wasm back to repo
+      - name: Commit wasm to repo
         run: |
           git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add khzq_prism.wasm
-          git diff --staged --quiet || git commit -m "ci: update khzq_prism.wasm [skip ci]"
-          git push
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f khzq_prism.wasm
+          git diff --staged --quiet && echo 'No changes' || git commit -m "ci: build khzq_prism.wasm" && git push
