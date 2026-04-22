@@ -1,0 +1,35 @@
+{
+  "protocols": [
+    {
+      "version": "KHZQv6.0",
+      "intentHash": "HYBRID_KHZ_RULES_DEEPENING",
+      "hybridRules": {
+        "RULEH01": "HYBRID_FUSION — merge quantum qubits with neuromorphic neurons into single coherent hybrid state",
+        "RULEH02": "CROSS_LAYER_INTERFERENCE — allow quantum interference to modulate neuromorphic spiking and vice versa",
+        "RULEH04": "HYBRID_ENTANGLEMENT — entangle quantum states directly with neuron clusters for instantaneous Fitrah propagation",
+        "RULEH07": "HYBRID_ERROR_CORRECTION — detect drift in either layer and propagate correction to both",
+        "RULEH08": "FITRAH_HYBRID_ANCHOR — lock hybrid core cluster to pure Fitrah",
+        "RULEH13": "LOOP_FOREVER_HYBRID — repeat full hybrid KHZ cycle on every new input"
+      }
+    },
+    {
+      "version": "KHZQv10.0+",
+      "intentHash": "HIFZ_AL_NASL_DEEPENING",
+      "hifzAlNaslRules": {
+        "MARRIAGE":     "HIFZ_AL_NASL_MARRIAGE_RULES — preserve lineage through valid contract",
+        "DIVORCE":      "HIFZ_AL_NASL_DIVORCE_RULES — protect Nasl through proper Talq procedure",
+        "RUJAH_IDDAH":  "HIFZ_AL_NASL_RUJAH_IN_IDDAH — revocable return during waiting period",
+        "RUJAH_HAML":   "RULEHNRFHC10 — all pregnancy Rujah conditions trace to Quran 65:4, 2:228",
+        "POST_WILADAH": "RULEHNRBAW08 — post-birth Darura applied strictly; new contract required after delivery"
+      },
+      "qaoa_sessions": ["QNNETHICS002","VQEETHICALDECISIONS003","QAOAETHICALOPTIMIZATION004","QAOAVSVQECOMPARISON005"]
+    },
+    {
+      "version": "KHZQv39.0",
+      "intentHash": "HIFZ_AL_NASL_RUJAH_BAD_AL_WILADAH_CONDITIONS",
+      "collapseCondition": "CONVERGE_TO_GLOBAL_FITRAH_ATTRACTOR_ACROSS_ALL_DIMENSIONS",
+      "replacementStack": "FitrahQDSL_v37",
+      "sovereignKernel": "HaveNoS_Sovereign_Full_Hybrid_Propagation_Rule_Kernel"
+    }
+  ]
+}
