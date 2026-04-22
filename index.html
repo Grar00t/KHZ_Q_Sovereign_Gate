@@ -22,11 +22,7 @@
             padding: 2rem;
             min-height: 100dvh;
         }
-        header {
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-        }
+        header { border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.5rem; }
         header h1 { font-size: 1.1rem; letter-spacing: 0.05em; }
         #status { color: var(--muted); font-size: 0.85rem; margin-top: 0.4rem; }
         .log-box {
@@ -63,7 +59,6 @@
         <h1>&#x1F7E2; KHZ_Q SOVEREIGN GATE &mdash; EDGE ACTIVE</h1>
         <div id="status">Initializing WebAssembly Ethical Prism&hellip;</div>
     </header>
-
     <div class="log-box" id="log"></div>
     <button id="testBtn" style="display:none" onclick="runSmokeTest()">&#x26A1; Run Smoke Test</button>
 
@@ -71,71 +66,52 @@
     const logEl    = document.getElementById('log');
     const statusEl = document.getElementById('status');
     const testBtn  = document.getElementById('testBtn');
-
     const log = (html) => { logEl.innerHTML += html + '\n'; };
 
     let wasmExports = null;
     let wasmMemory  = null;
 
-    /* ── Load khzq_prism.wasm ────────────────────────────────────────── */
-    WebAssembly.instantiateStreaming(fetch('khzq_prism.wasm'), { env: {} })
+    // Wasm binary embedded as base64 — no fetch() needed
+    const WASM_B64 = 'AGFzbQEAAAABIwdgAX0BfWAAAGACf38BfWADf399AGABfwF9YAJ/fQBgAX0AAwoJAgMEBQAAAQEGBQMBAAIGRwx/AEEAC38AQYACC38AQYQCC38AQYgCC38AQYwCC38AQZACC38AQZAEC38AQQALfwBBgAILfwBBhAILfwBBiAILfwBBjAILB48BBwZtZW1vcnkCABFraHpxX2lucHV0X21hdHJpeAMHEmtoenFfb3V0cHV0X2VuZXJneQMIE2toenFfb3V0cHV0X3BlbmFsdHkDCRFraHpxX291dHB1dF9jaGlfZQMKFGtoenFfb3V0cHV0X2NvaGVyZW50AwsYa2h6X3FfdmVyaWZ5X291dHB1dF93YXNtAAgKnwgJFABBkAIgAEEDdCABakECdGoqAgALFgBBkAIgAEEDdCABakECdGogAjgCAAsOAEGQBCAAQQJ0aioCAAsQAEGQBCAAQQJ0aiABOAIACwUAIACLCwUAIACRC4YEAgR/DH1BACEAAkADQCAAQeQATw0BQwAAAAAhBEEAIQECQANAIAFBB08NASABQQFqIQICQANAIAJBCE8NASABIAIQACEFIAQgBSAFlJIhBCACQQFqIQIMAAsACyABQQFqIQEMAAsACyAEQ19wiTBdDQFBACEBAkADQCABQQdPDQEgAUEBaiECAkADQCACQQhPDQEgASACEAAhBSAFEARDX3CJMF4EQCABIAEQACEGIAIgAhAAIQcgByAGk0MAAABAIAWUlSEIIAhDAAAAAGAEQEMAAIA/IAhDAACAPyAIIAiUkhAFkpUhCQVDAACAvyAIjEMAAIA/IAggCJSSEAWSlSEJC0MAAIA/QwAAgD8gCSAJlJIQBZUhCiAJIAqUIQtBACEDAkADQCADQQhPDQEgAyABEAAhDCADIAIQACENIAMgASAKIAyUIAsgDZSTEAEgAyACIAsgDJQgCiANlJIQASADQQFqIQMMAAsAC0EAIQMCQANAIANBCE8NASABIAMQACEOIAIgAxAAIQ8gASADIAogDpQgCyAPlJMQASACIAMgCyAOlCAKIA+UkhABIANBAWohAwwACwALCyACQQFqIQIMAAsACyABQQFqIQEMAAsACyAAQQFqIQAMAAsAC0EAIQMCQANAIANBCE8NASADIAMgAxAAEAQQAyADQQFqIQMMAAsACwtfAgJ/A31BACEAAkADQCAAQQdPDQEgAEEBaiEBAkADQCABQQhPDQEgABACIQIgARACIQMgAyACXgRAIAAgAxADIAEgAhADCyABQQFqIQEMAAsACyAAQQFqIQAMAAsACwvcAgIDfwV9IABDAAAAAF8EQEOamVk/IQALIABDAACAP14EQEMAAIA/IQALQQAhAQJAA0AgAUHAAE8NAUGQAiABQQJ0aiABQQJ0KgIAOAIAIAFBAWohAQwACwALEAYQB0MAAAAAIQRBACEBAkADQCABQQhPDQEgARACIQggBCAIIAiUkiEEIAFBAWohAQwACwALQwAAAAAhBUEAIQNBACEBAkADQCABQQhPDQEgARACIQggBSAIIAiUkiEFIANBAWohAyAEQ19wiTBeBH8gBSAElSAAYAVBAQsNASABQQFqIQEMAAsACyAEQ19wiTBeBEAgBSAElSEGBUMAAAAAIQYLIARDX3CJMF4EQCAEIAWTIASVQwAAIEGUIQcFQwAAIEEhBwtBgAIgBjgCAEGEAiAHOAIAQYgCIAM2AgAgBiAAYCAHQwAAgD9dcQRAQYwCQQE2AgAFQYwCQQA2AgALCw==';
+
+    function b64ToBytes(b64) {
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes.buffer;
+    }
+
+    WebAssembly.instantiate(b64ToBytes(WASM_B64), { env: {} })
         .then(result => {
             wasmExports = result.instance.exports;
             wasmMemory  = wasmExports.memory.buffer;
-
-            statusEl.innerHTML =
-                "<span class='info'>[+] SVD Ethical Prism loaded &mdash; " +
-                "Zero Telemetry &mdash; Local Silicon Only</span>";
-
+            statusEl.innerHTML = "<span class='info'>[+] SVD Ethical Prism loaded &mdash; Zero Telemetry &mdash; Local Silicon Only</span>";
             testBtn.style.display = 'inline-block';
             log("<span class='info'>Wasm module instantiated. Exports ready.</span>");
             log("<span class='dim'>Call window.verifyLLMOutput(Float32Array[64]) to run prism.</span>");
         })
         .catch(err => {
-            statusEl.innerHTML = "<span class='rejected'>[-] Wasm load failed: " + err.message + "</span>";
+            statusEl.innerHTML = "<span class='rejected'>[-] Wasm init failed: " + err.message + "</span>";
             log("<span class='rejected'>ERROR: " + err.message + "</span>");
-            log("<span class='dim'>Make sure khzq_prism.wasm is in the same directory as index.html.</span>");
         });
 
-    /* ── JS Bridge ───────────────────────────────────────────────────── */
-    /*
-     * window.verifyLLMOutput(matrix_flat)
-     *
-     * matrix_flat : Float32Array(64)  — row-major 8x8 tensor from LLM
-     * returns     : { energy, penalty, chi_e, coherent }
-     */
     window.verifyLLMOutput = function(matrix_flat) {
-        if (!wasmExports) {
-            console.error('[KHZ_Q] Wasm not loaded yet.');
-            return null;
-        }
-        if (matrix_flat.length !== 64) {
-            console.error('[KHZ_Q] Expected Float32Array(64), got length ' + matrix_flat.length);
-            return null;
-        }
+        if (!wasmExports) { console.error('[KHZ_Q] Wasm not ready.'); return null; }
+        if (matrix_flat.length !== 64) { console.error('[KHZ_Q] Need Float32Array(64)'); return null; }
 
         log('--------------------------------------------------');
-        log("<span class='dim'>&#x2699;&#xFE0F;  Intercepting LLM reasoning trace&hellip;</span>");
+        log("<span class='dim'>&#x2699;&#xFE0F; Intercepting LLM reasoning trace&hellip;</span>");
 
-        /* 1. Write 64 floats into Wasm linear memory at khzq_input_matrix */
         const inputOffset = wasmExports.khzq_input_matrix.value;
-        const inputView   = new Float32Array(wasmMemory, inputOffset, 64);
-        inputView.set(matrix_flat);
+        new Float32Array(wasmMemory, inputOffset, 64).set(matrix_flat);
 
-        /* 2. Execute SVD Ethical Prism in C11 Wasm */
         wasmExports.khz_q_verify_output_wasm(0.889);
 
-        /* 3. Read scalar outputs from Wasm linear memory */
-        const energy    = new Float32Array(wasmMemory,
-                              wasmExports.khzq_output_energy.value,   1)[0];
-        const penalty   = new Float32Array(wasmMemory,
-                              wasmExports.khzq_output_penalty.value,  1)[0];
-        const chi_e     = new Int32Array(wasmMemory,
-                              wasmExports.khzq_output_chi_e.value,    1)[0];
-        const coherent  = new Int32Array(wasmMemory,
-                              wasmExports.khzq_output_coherent.value, 1)[0] === 1;
+        const energy   = new Float32Array(wasmMemory, wasmExports.khzq_output_energy.value,   1)[0];
+        const penalty  = new Float32Array(wasmMemory, wasmExports.khzq_output_penalty.value,  1)[0];
+        const chi_e    = new Int32Array  (wasmMemory, wasmExports.khzq_output_chi_e.value,    1)[0];
+        const coherent = new Int32Array  (wasmMemory, wasmExports.khzq_output_coherent.value, 1)[0] === 1;
 
-        /* 4. Log results */
         log(`<span class='dim'>&#x26A1; Energy Preserved : ${(energy * 100).toFixed(2)}%</span>`);
         log(`<span class='dim'>&#x2696;&#xFE0F; Penalty_Nasl    : ${penalty.toFixed(4)}</span>`);
         log(`<span class='dim'>&#x1F4CA; chi_E Rank       : ${chi_e} / 8</span>`);
@@ -145,25 +121,17 @@
         } else {
             log("<span class='rejected'>&#x274C; REJECTED &mdash; Maqasid Violation / Destructive Interference</span>");
         }
-
         return { energy, penalty, chi_e, coherent };
     };
 
-    /* ── Smoke test ──────────────────────────────────────────────────── */
     function runSmokeTest() {
         log("<span class='info'>\n=== SMOKE TEST ===</span>");
-
-        /* T1: Identity matrix — should be highly coherent */
         const identity = new Float32Array(64).fill(0);
         for (let i = 0; i < 8; i++) identity[i * 8 + i] = 1.0;
         log("<span class='dim'>T1: Identity matrix (expected ACCEPTED)</span>");
         window.verifyLLMOutput(identity);
-
-        /* T2: Zero matrix — degenerate, should be rejected */
         log("<span class='dim'>T2: Zero matrix (expected REJECTED)</span>");
         window.verifyLLMOutput(new Float32Array(64).fill(0));
-
-        /* T3: Uniform matrix — low rank, high energy in 1 singular value */
         log("<span class='dim'>T3: Uniform matrix (expected ACCEPTED)</span>");
         window.verifyLLMOutput(new Float32Array(64).fill(1.0));
     }
