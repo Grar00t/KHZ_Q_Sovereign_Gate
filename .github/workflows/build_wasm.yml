@@ -1,0 +1,44 @@
+name: Build KHZ_Q Wasm
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Core_CPP/khz_q_svd.c'
+      - 'Core_CPP/khz_q_svd.h'
+      - '.github/workflows/build_wasm.yml'
+  workflow_dispatch:  # allow manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Clang + LLVM wasm32 target
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang lld
+
+      - name: Build khzq_prism.wasm
+        run: |
+          clang --target=wasm32 -O3 -nostdlib \
+            -Wl,--no-entry \
+            -Wl,--export=khzq_input_matrix \
+            -Wl,--export=khzq_output_energy \
+            -Wl,--export=khzq_output_penalty \
+            -Wl,--export=khzq_output_chi_e \
+            -Wl,--export=khzq_output_coherent \
+            -Wl,--export=khz_q_verify_output_wasm \
+            Core_CPP/khz_q_svd.c -o khzq_prism.wasm
+          echo "Built: $(wc -c < khzq_prism.wasm) bytes"
+
+      - name: Commit khzq_prism.wasm back to repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add khzq_prism.wasm
+          git diff --staged --quiet || git commit -m "ci: update khzq_prism.wasm [skip ci]"
+          git push
